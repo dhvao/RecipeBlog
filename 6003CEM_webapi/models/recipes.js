@@ -1,5 +1,6 @@
 const db = require('../helpers/database');
 
+// Get a recipe by its ID, including its ingredients
 exports.getById = async function getById(id) {
   const query = "SELECT * FROM recipes WHERE recipe_id = ?;";
   const data = await db.run_query(query, [id]);
@@ -13,6 +14,7 @@ exports.getById = async function getById(id) {
   return data;
 };
 
+// Get all recipes with pagination and order, including their ingredients
 exports.getAll = async function getAll(page = 1, limit = 10, order = 'created_at', direction = 'ASC') {
   const offset = (page - 1) * limit;
   let query;
@@ -39,6 +41,7 @@ exports.getAll = async function getAll(page = 1, limit = 10, order = 'created_at
   return data;
 };
 
+// Add a new recipe, including its ingredients if provided
 exports.add = async function add(recipe) {
   const recipeQuery = "INSERT INTO recipes (title, instructions, summary, published, authorID) VALUES (?, ?, ?, ?, ?);";
   const recipeValues = [recipe.title, recipe.instructions, recipe.summary, recipe.published, recipe.authorID];
@@ -59,6 +62,7 @@ exports.add = async function add(recipe) {
   return null;
 };
 
+// Update a recipe, including its ingredients
 exports.update = async function update(recipe) {
   const query = "UPDATE recipes SET title = ?, instructions = ?, summary = ?, published = ?, authorID = ? WHERE recipe_id = ?;";
   const values = [recipe.title, recipe.instructions, recipe.summary, recipe.published, recipe.authorID, recipe.recipe_id];
@@ -77,27 +81,12 @@ exports.update = async function update(recipe) {
   return data;
 };
 
+// Delete a recipe by its ID, including its ingredients
 exports.delById = async function delById(id) {
   const deleteIngredientQuery = "DELETE FROM ingredients WHERE recipe_id = ?;";
   await db.run_query(deleteIngredientQuery, [id]);
 
   const query = "DELETE FROM recipes WHERE recipe_id = ?;";
   const data = await db.run_query(query, [id]);
-  return data;
-};
-
-exports.delIngredientsByRecipeId = async function delIngredientsByRecipeId(recipe_id) {
-  const query = "DELETE FROM ingredients WHERE recipe_id = ?;";
-  const values = [recipe_id];
-  const data = await db.run_query(query, values);
-  return data;
-};
-
-exports.delById = async function delById(id) {
-  await exports.delIngredientsByRecipeId(id);
-
-  const query = "DELETE FROM recipes WHERE recipe_id = ?;";
-  const values = [id];
-  const data = await db.run_query(query, values);
   return data;
 };

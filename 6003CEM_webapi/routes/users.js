@@ -8,9 +8,11 @@ const can = require('../permissions/users');
 const auth = require('../controllers/auth');
 const { validateUser, validateUserUpdate } = require('../controllers/validation');
 
+// Initialize router with a prefix for all user routes
 const prefix = '/api/v1/users';
 const router = Router({ prefix: prefix });
 
+// Define routes for user operations
 router.get('/', auth, getAll);
 router.post('/', bodyParser(), validateUser, createUser);
 router.post('/login', bodyParser(), login);
@@ -20,6 +22,7 @@ router.del('/:id([0-9]{1,})', auth, deleteUser);
 router.get('/search', auth, emailSearch);
 router.get('/account', auth, getAccountDetails);  
 
+// Function to search users by email
 async function emailSearch(ctx, next) {
   const permission = can.readAll(ctx.state.user);
   if (!permission.granted) {
@@ -40,6 +43,7 @@ async function emailSearch(ctx, next) {
   }
 }
 
+// Function to handle user login
 async function login(ctx) {
   const { username, password } = ctx.request.body;
 
@@ -71,7 +75,7 @@ async function login(ctx) {
   }
 }
 
-
+// Function to get all users
 async function getAll(ctx) {
   const permission = can.readAll(ctx.state.user);
   if (!permission.granted) {
@@ -107,6 +111,7 @@ async function getAll(ctx) {
   }
 }
 
+// Function to get user by ID
 async function getById(ctx, next) {
   const id = ctx.params.id;
   const result = await model.getById(id);
@@ -146,6 +151,7 @@ async function getById(ctx, next) {
   }
 }
 
+// Function to create a new user
 async function createUser(ctx) {
   const body = ctx.request.body;
   body.role = 'user';  // Automatically set the role to 'user'
@@ -157,6 +163,7 @@ async function createUser(ctx) {
   }
 }
 
+// Function to get account details of the logged-in user
 async function getAccountDetails(ctx) {
   const userId = ctx.state.user.ID; // Assuming user ID is stored in ctx.state.user
 
@@ -178,7 +185,6 @@ async function getAccountDetails(ctx) {
       return;
     }
 
-
     const recipes = await model.getRecipesByUserId(userId) || [];
 
     ctx.body = {
@@ -192,7 +198,7 @@ async function getAccountDetails(ctx) {
   }
 }
 
-
+// Function to update a user
 async function updateUser(ctx) {
   const id = ctx.params.id;
   let result = await model.getById(id);  // check it exists
@@ -232,6 +238,7 @@ async function updateUser(ctx) {
   }
 }
 
+// Function to delete a user
 async function deleteUser(ctx) {
   const id = ctx.params.id;
   let result = await model.getById(id);

@@ -3,15 +3,18 @@ const bodyParser = require('koa-bodyparser');
 const model = require('../models/ingredients');
 const auth = require('../controllers/auth');
 
+// Initialize router with a prefix for all ingredient routes
 const prefix = '/api/v1/ingredients';
 const router = Router({ prefix: prefix });
 
+// Define routes for CRUD operations on ingredients
 router.get('/', auth, getAll);
 router.post('/', auth, bodyParser(), createIngredient);
 router.get('/:id([0-9]{1,})', auth, getById);
 router.put('/:id([0-9]{1,})', auth, bodyParser(), updateIngredient);
 router.del('/:id([0-9]{1,})', auth, deleteIngredient);
 
+// Function to get all ingredients
 async function getAll(ctx) {
   const result = await model.getAll();
   if (result.length) {
@@ -22,6 +25,7 @@ async function getAll(ctx) {
   }
 }
 
+// Function to get an ingredient by its ID
 async function getById(ctx) {
   const id = ctx.params.id;
   const result = await model.getById(id);
@@ -33,6 +37,7 @@ async function getById(ctx) {
   }
 }
 
+// Function to create a new ingredient
 async function createIngredient(ctx) {
   const { name, amount, recipe_id } = ctx.request.body;
 
@@ -55,6 +60,7 @@ async function createIngredient(ctx) {
   }
 }
 
+// Function to update an ingredient
 async function updateIngredient(ctx) {
   const id = ctx.params.id;
   let result = await model.getById(id);
@@ -75,7 +81,7 @@ async function updateIngredient(ctx) {
   }
 }
 
-
+// Function to delete an ingredient
 async function deleteIngredient(ctx) {
   const id = ctx.params.id;
   const result = await model.delById(id);

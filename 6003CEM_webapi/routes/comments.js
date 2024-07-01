@@ -1,15 +1,17 @@
-// routes/comments.js
 const Router = require('koa-router');
 const auth = require('../controllers/auth');
 const validate = require('../controllers/validation');
 const comments = require('../models/comments');
 
+// Initialize router with a prefix for all comment routes
 const router = Router({ prefix: '/api/v1/comments' });
 
+// Define routes for getting comments, adding a comment, and deleting a comment
 router.get('/', getCommentsByRecipeID);
 router.post('/', auth, validate.validateComment, add);
 router.del('/:id([0-9]{1,})', auth, deleteById);
 
+// Function to get comments by recipe ID
 async function getCommentsByRecipeID(ctx) {
   const recipeID = ctx.query.recipeID;
   if (!recipeID) {
@@ -21,6 +23,7 @@ async function getCommentsByRecipeID(ctx) {
   ctx.body = result;
 }
 
+// Function to add a new comment
 async function add(ctx) {
   const body = ctx.request.body;
   const result = await comments.add(body);
@@ -28,6 +31,7 @@ async function add(ctx) {
   ctx.body = result;
 }
 
+// Function to delete a comment by its ID
 async function deleteById(ctx) {
   const id = ctx.params.id;
   const result = await comments.deleteById(id);

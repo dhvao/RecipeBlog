@@ -1,6 +1,7 @@
 const db = require('../helpers/database');
 const bcrypt = require('bcrypt');
 
+// Find a user by their username
 exports.findByUsername = async function findByUsername(username) {
   const query = "SELECT * FROM users WHERE username = ?;";
   const values = [username];
@@ -10,6 +11,7 @@ exports.findByUsername = async function findByUsername(username) {
   return data[0];
 };
 
+// Get a user by their ID
 exports.getById = async function getById(id) {
   const query = "SELECT * FROM users WHERE ID = ?;";
   const values = [id];
@@ -19,6 +21,7 @@ exports.getById = async function getById(id) {
   return data;
 };
 
+// Add a new user
 exports.add = async function add(user) {
   const query = "INSERT INTO users (username, password, email, role) VALUES (?, ?, ?, ?)";
   const password = user.password;
@@ -29,6 +32,7 @@ exports.add = async function add(user) {
   return data;
 };
 
+// Update a user
 exports.update = async function update(user) {
   const query = "UPDATE users SET username = ?, email = ?, role = ? WHERE ID = ?";
   const values = [user.username, user.email, user.role, user.ID];
@@ -38,6 +42,7 @@ exports.update = async function update(user) {
   return data;
 };
 
+// Get articles by a user's ID
 exports.getArticlesByUserId = async function getArticlesByUserId(userId) {
   const query = "SELECT * FROM articles WHERE authorID = ?;";
   const values = [userId];
@@ -45,6 +50,7 @@ exports.getArticlesByUserId = async function getArticlesByUserId(userId) {
   return data;
 };
 
+// Get comments by a user's ID
 exports.getCommentsByUserId = async function getCommentsByUserId(userId) {
   const query = "SELECT * FROM comments WHERE authorID = ?;";
   const values = [userId];
@@ -52,6 +58,7 @@ exports.getCommentsByUserId = async function getCommentsByUserId(userId) {
   return data;
 };
 
+// Get recipes by a user's ID
 exports.getRecipesByUserId = async function getRecipesByUserId(userId) {
   const query = "SELECT * FROM recipes WHERE authorID = ?;";
   const values = [userId];
@@ -59,7 +66,7 @@ exports.getRecipesByUserId = async function getRecipesByUserId(userId) {
   return data;
 };
 
-
+// Delete a user by their ID
 exports.delById = async function delById(id) {
   const query = "DELETE FROM users WHERE ID = ?";
   const values = [id];
@@ -69,6 +76,7 @@ exports.delById = async function delById(id) {
   return data;
 };
 
+// Search for users by email
 exports.emailSearch = async function emailSearch(q) {
   const query = "SELECT * FROM users WHERE email LIKE ?;";
   const values = [`%${q}%`];
@@ -78,6 +86,7 @@ exports.emailSearch = async function emailSearch(q) {
   return data;
 };
 
+// Get all users with pagination
 exports.getAll = async function getAll(limit, page) {
   const offset = (page - 1) * limit;
   const query = "SELECT * FROM users LIMIT ?, ?";

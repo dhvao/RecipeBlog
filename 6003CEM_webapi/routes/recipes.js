@@ -4,15 +4,18 @@ const model = require('../models/recipes');
 const auth = require('../controllers/auth');
 const can = require('../permissions/recipes');
 
+// Initialize router with a prefix for all recipe routes
 const prefix = '/api/v1/recipes';
 const router = Router({ prefix: prefix });
 
+// Define routes for CRUD operations on recipes
 router.get('/', getAll);
 router.post('/', auth, bodyParser(), createRecipe);
 router.get('/:id([0-9]{1,})', getById);
 router.put('/:id([0-9]{1,})', auth, bodyParser(), updateRecipe);
 router.del('/:id([0-9]{1,})', auth, deleteRecipe);
 
+// Function to get all recipes
 async function getAll(ctx) {
     const result = await model.getAll();
     if (result.length) {
@@ -23,6 +26,7 @@ async function getAll(ctx) {
     }
 }
 
+// Function to get a recipe by its ID
 async function getById(ctx) {
     const id = ctx.params.id;
     const result = await model.getById(id);
@@ -34,6 +38,7 @@ async function getById(ctx) {
     }
 }
 
+// Function to create a new recipe
 async function createRecipe(ctx) {
     const body = ctx.request.body;
     const result = await model.add(body);
@@ -47,6 +52,7 @@ async function createRecipe(ctx) {
     }
 }
 
+// Function to update a recipe
 async function updateRecipe(ctx) {
     const id = ctx.params.id;
     let result = await model.getById(id);
@@ -74,6 +80,7 @@ async function updateRecipe(ctx) {
     }
 }
 
+// Function to delete a recipe
 async function deleteRecipe(ctx) {
     const id = ctx.params.id;
     let result = await model.getById(id);
@@ -85,7 +92,7 @@ async function deleteRecipe(ctx) {
             ctx.body = { error: 'You do not have permission to delete this recipe' };
             return;
         } else {
-            result = await model.deleteById(id);
+            result = await model.delById(id); // Ensure this function name matches your model function
             if (result.affectedRows) {
                 ctx.body = { ID: id, deleted: true };
             } else {
