@@ -35,6 +35,8 @@ This project is a recipe blog that includes a RESTful API and a ReactJS single-p
    cd ../6003cem_client
    npm install
    npm start
+   
+## ADMIN: alice PASSWORD: password
 
 ## API Documentation
 The API documentation is available at `https://genuineplato-investgenetic-3001.codio-box.uk/`.
