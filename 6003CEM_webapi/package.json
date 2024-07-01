@@ -6,10 +6,9 @@
   "scripts": {
     "test": "cross-env DB_DATABASE=test_db jest --testTimeout=10000",
     "test:watch": "cross-env DB_DATABASE=test_db jest --watch",
-    "testDB:drop": "/usr/local/mysql/bin/mysql --user=root --password=password -e 'DROP DATABASE IF EXISTS test_db;'",
-    "testDB:create": "/usr/local/mysql/bin/mysql --user=root --password=password -e 'CREATE DATABASE test_db;'",
-    "testDB:migrate": "/usr/local/mysql/bin/mysqldump --user=root --password=password blog_demo | /usr/local/mysql/bin/mysql --user=root --password=password test_db",
-    "lint": "eslint --ignore-path .gitignore --ignore-path .eslintignore .",
+    "testDB:drop": "mysql --user=root --password=codio -e 'DROP DATABASE IF EXISTS test_db;'",
+    "testDB:create": "mysql --user=root --password=codio -e 'CREATE DATABASE test_db;'",
+    "testDB:migrate": "mysqldump --user=root --password=codio recipe_blog | mysql --user=root --password=codio test_db",
     "pretest": "npm run testDB:drop && npm run testDB:create && npm run testDB:migrate",
     "posttest": "npm run lint"
   },
@@ -28,6 +27,7 @@
     "etag": "^1.8.1",
     "fs": "0.0.1-security",
     "jsonschema": "^1.2.11",
+    "jsonwebtoken": "^9.0.2",
     "koa": "^2.13.0",
     "koa-body": "^4.2.0",
     "koa-bodyparser": "^4.3.0",

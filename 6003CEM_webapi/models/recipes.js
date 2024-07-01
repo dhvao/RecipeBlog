@@ -62,24 +62,34 @@ exports.add = async function add(recipe) {
   return null;
 };
 
-// Update a recipe, including its ingredients
-exports.update = async function update(recipe) {
-  const query = "UPDATE recipes SET title = ?, instructions = ?, summary = ?, published = ?, authorID = ? WHERE recipe_id = ?;";
-  const values = [recipe.title, recipe.instructions, recipe.summary, recipe.published, recipe.authorID, recipe.recipe_id];
-  const data = await db.run_query(query, values);
+const update = async (id, data) => {
+  const { title, instructions, summary, published, ingredients } = data;
+  const query = 'UPDATE recipes SET title = ?, instructions = ?, summary = ?, published = ? WHERE recipe_id = ?';
+  const values = [title, instructions, summary, published, id];
 
-  const deleteIngredientQuery = "DELETE FROM ingredients WHERE recipe_id = ?;";
-  await db.run_query(deleteIngredientQuery, [recipe.recipe_id]);
+  try {
+    const result = await db.run_query(query, values);
 
-  const ingredientQuery = "INSERT INTO ingredients (recipe_id, name, amount) VALUES ?";
-  const ingredientValues = recipe.ingredients.map(ingredient => [recipe.recipe_id, ingredient.name, ingredient.amount]);
+    // Handle ingredients
+    if (ingredients && Array.isArray(ingredients)) {
+      // Delete existing ingredients
+      await db.run_query('DELETE FROM ingredients WHERE recipe_id = ?', [id]);
 
-  if (ingredientValues.length > 0) {
-    await db.run_query(ingredientQuery, [ingredientValues]);
+      // Insert new ingredients
+      const ingredientQueries = ingredients.map(ingredient => {
+        return db.run_query('INSERT INTO ingredients (recipe_id, name, amount) VALUES (?, ?, ?)', [id, ingredient.name, ingredient.amount]);
+      });
+
+      await Promise.all(ingredientQueries);
+    }
+
+    return { updated: true };
+  } catch (error) {
+    console.error('Error updating recipe:', error);
+    throw error;
   }
-
-  return data;
 };
+
 
 // Delete a recipe by its ID, including its ingredients
 exports.delById = async function delById(id) {

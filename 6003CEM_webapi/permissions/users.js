@@ -5,17 +5,15 @@ const ac = new AccessControl();
  * This code implements Role-Based Access Control (RBAC) for managing 'user' records.
  * It enforces granular permissions for 'user' and 'admin' roles, including conditional
  * ownership checks and restrictions on accessing sensitive fields (password, passwordSalt).
- * @author Toma
  * 
  * // Users can read their own profile (excluding password fields)
-
- */ac
+ */ 
+ac
   .grant('user')
   .condition({Fn:'EQUALS', args: {'requester':'$.owner'}})
   .execute('read')
   .on('user', ['*', '!password', '!passwordSalt']);
-// Users can update their own profile (including password) 
-
+// Users can update their own profile (including password)
 ac
   .grant('user')
   .condition({Fn:'EQUALS', args: {'requester':'$.owner'}})
@@ -37,12 +35,12 @@ ac
   .execute('update')
   .on('user');
 
+// Admins can delete any user except themselves
 ac
   .grant('admin')
   .condition({Fn:'NOT_EQUALS', args: {'requester':'$.owner'}})
   .execute('delete')
   .on('user');
-
 
 exports.readAll = (requester) => {
   return ac

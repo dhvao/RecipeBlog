@@ -1,14 +1,13 @@
 const Router = require('koa-router');
 const auth = require('../controllers/auth');
-const validate = require('../controllers/validation');
+const { validateComment } = require('../controllers/validation'); // Import the validateComment middleware
 const comments = require('../models/comments');
 
-// Initialize router with a prefix for all comment routes
 const router = Router({ prefix: '/api/v1/comments' });
 
 // Define routes for getting comments, adding a comment, and deleting a comment
 router.get('/', getCommentsByRecipeID);
-router.post('/', auth, validate.validateComment, add);
+router.post('/', auth, validateComment, add);  // Apply validateComment middleware here
 router.del('/:id([0-9]{1,})', auth, deleteById);
 
 // Function to get comments by recipe ID

@@ -1,6 +1,7 @@
 const Router = require('koa-router');
 const bodyParser = require('koa-bodyparser');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken'); 
 const etag = require('etag');
 const model = require('../models/users');
 const passport = require('koa-passport');
@@ -20,7 +21,7 @@ router.get('/:id([0-9]{1,})', auth, getById);
 router.put('/:id([0-9]{1,})', auth, bodyParser(), validateUserUpdate, updateUser);
 router.del('/:id([0-9]{1,})', auth, deleteUser);
 router.get('/search', auth, emailSearch);
-router.get('/account', auth, getAccountDetails);  
+router.get('/account', auth, getAccountDetails);
 
 // Function to search users by email
 async function emailSearch(ctx, next) {
@@ -46,6 +47,7 @@ async function emailSearch(ctx, next) {
 // Function to handle user login
 async function login(ctx) {
   const { username, password } = ctx.request.body;
+  const secret = 'your_jwt_secret'; // Use a secure secret key
 
   try {
     const user = await model.findByUsername(username);
@@ -62,12 +64,9 @@ async function login(ctx) {
       return;
     }
 
-    ctx.state.user = user;  // Set user in state
-    const { ID, email, avatarURL } = user;
-    const links = {
-      self: `${ctx.protocol}://${ctx.host}${prefix}/${ID}`
-    };
-    ctx.body = { ID, username, email, avatarURL, links };
+    const token = jwt.sign({ id: user.ID, username: user.username }, secret, { expiresIn: '1h' });
+
+    ctx.body = { token, user: { id: user.ID, username: user.username, email: user.email } };
   } catch (error) {
     console.error('Login error:', error);
     ctx.status = 500;
@@ -238,22 +237,31 @@ async function updateUser(ctx) {
   }
 }
 
-// Function to delete a user
 async function deleteUser(ctx) {
   const id = ctx.params.id;
-  let result = await model.getById(id);
+  const result = await model.getById(id);
   if (result.length) {
     const data = result[0];
     console.log("trying to delete", data);
+
     const permission = can.delete(ctx.state.user, data);
+    console.log(`User role: ${ctx.state.user.role}, User ID: ${ctx.state.user.ID}, Target ID: ${data.ID}, Permission granted: ${permission.granted}`);
+
     if (!permission.granted) {
       ctx.status = 403;
+      ctx.body = { error: 'You do not have permission to delete this user' };
     } else {
-      result = await model.delById(id);
-      if (result.affectedRows) {
+      const deleteResult = await model.delById(id);
+      if (deleteResult.affectedRows) {
         ctx.body = { ID: id, deleted: true };
+      } else {
+        ctx.status = 500;
+        ctx.body = { error: 'Failed to delete user' };
       }
     }
+  } else {
+    ctx.status = 404;
+    ctx.body = { error: 'User not found' };
   }
 }
 

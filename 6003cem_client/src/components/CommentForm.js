@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useContext } from 'react';
 import { Form, Input, Button, message } from 'antd';
 import axios from 'axios';
 import UserContext from '../contexts/user';
@@ -12,7 +12,7 @@ const CommentForm = ({ recipeID, onCommentSubmit }) => {
   // Handle form submission
   const onFinish = async (values) => {
     const comment = {
-      ...values,
+      allText: values.allText,
       recipeID: recipeID,
       authorID: user.ID,
     };
@@ -29,13 +29,13 @@ const CommentForm = ({ recipeID, onCommentSubmit }) => {
         }
       );
 
-      if (response.status !== 201) {
-        throw new Error('Network response was not ok.');
+      if (response.status === 201) {
+        message.success('Comment posted successfully!');
+        form.resetFields();  // Reset form fields after successful submission
+        onCommentSubmit();  // Call parent component's callback
+      } else {
+        throw new Error('Failed to post comment - Status: ' + response.status);
       }
-
-      message.success('Comment posted successfully!');
-      form.resetFields();  // Reset form fields after successful submission
-      onCommentSubmit();  // Call parent component's callback
     } catch (error) {
       message.error('Error posting comment: ' + error.message);
     }
