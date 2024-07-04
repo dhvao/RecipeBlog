@@ -15,7 +15,7 @@ This project is a recipe blog that includes a RESTful API and a ReactJS single-p
 ### Installation
 
 1. **Clone the repository**
-   git clone https://github.coventry.ac.uk/kuzmict/6003CEM_Recipe_Blog_Resit.git
+   git clone [https://github.coventry.ac.uk/kuzmict/6003CEM_Recipe_Blog_Resit](https://github.com/dhvao/RecipeBlog).git
    cd 6003CEM_Recipe_Blog_Resit
 
 2. **Setup the database**
